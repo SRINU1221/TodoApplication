@@ -22,7 +22,20 @@ document.addEventListener('DOMContentLoaded', () => {
     let todos = [];
     let currentFilter = 'all';
     let token = localStorage.getItem('token');
-    let user = JSON.parse(localStorage.getItem('user'));
+    let user = null;
+
+    try {
+        user = JSON.parse(localStorage.getItem('user'));
+    } catch (e) {
+        user = null;
+    }
+
+    // Handle invalid token strings
+    if (token === 'undefined' || token === 'null') {
+        token = null;
+        localStorage.removeItem('token');
+    }
+
     let isPriorityInput = false;
 
     // API URL
