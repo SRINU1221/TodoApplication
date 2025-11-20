@@ -79,34 +79,14 @@
         <div class="input-group">
             <input type="text" id="todo-input" placeholder=" " autocomplete="off">
             <label for="todo-input">Add a new task...</label>
-            <button id="priority-toggle" class="priority-btn" aria-label="Toggle Priority"
-                title="Mark as High Priority">
-                ★
-            </button>
-            <button id="add-btn" aria-label="Add Task">
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M12 5V19M5 12H19" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                        stroke-linejoin="round" />
-                </svg>
-            </button>
+            <button id="priority-toggle" class="priority-btn" aria-label="Toggle Priority" </ul>
+
+                <div class="empty-state" id="empty-state">
+                    <p>No tasks found. Time to relax!</p>
+                </div>
         </div>
 
-        <div class="filters">
-            <button class="filter-btn active" data-filter="all">All</button>
-            <button class="filter-btn" data-filter="active">Active</button>
-            <button class="filter-btn" data-filter="completed">Completed</button>
-        </div>
-
-        <ul id="todo-list" class="todo-list">
-            <!-- Todos will be added here -->
-        </ul>
-
-        <div class="empty-state" id="empty-state">
-            <p>No tasks found. Time to relax!</p>
-        </div>
-    </div>
-
-    <script src="app.js"></script>
-    </body>
+        <script src="app.js"></script>
+        </body>
 
 </html>
