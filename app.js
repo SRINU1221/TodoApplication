@@ -338,9 +338,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 li.innerHTML = `
                     <input type="checkbox" class="todo-checkbox" ${todo.completed ? 'checked' : ''}>
                     <div class="todo-content">
-                        <div style="display: flex; align-items: center;">
-                            ${todo.is_priority ? '<span class="priority-star">★</span>' : ''}
+                        <div class="todo-header">
                             <span class="todo-text">${escapeHtml(todo.text)}</span>
+                            ${todo.is_priority ? '<span class="priority-star" title="High Priority">★</span>' : ''}
                             ${isCarriedOver ? '<span class="carried-over-tag">Carried Over</span>' : ''}
                         </div>
                         <span class="todo-meta">Created by ${escapeHtml(user.username)} at ${dateString}</span>
