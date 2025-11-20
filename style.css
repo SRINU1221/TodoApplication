@@ -216,26 +216,6 @@ header h1 {
 }
 
 .logout-text {
-    font-size: 0.7rem;
-    font-weight: 500;
-}
-
-/* Input Group */
-.input-group {
-    position: relative;
-    margin-bottom: 0.5rem;
-    top: -0.6rem;
-    left: 1rem;
-    font-size: 0.75rem;
-    background: var(--bg-color);
-    padding: 0 0.25rem;
-    color: var(--primary);
-    border-radius: 4px;
-}
-
-#add-btn {
-    position: absolute;
-    right: 0.5rem;
     background: var(--primary);
     border: none;
     width: 36px;

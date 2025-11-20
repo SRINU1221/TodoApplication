@@ -11,24 +11,24 @@ document.addEventListener('DOMContentLoaded', () => {
     const backToLoginLink = document.getElementById('back-to-login');
     const authError = document.getElementById('auth-error');
     const logoutBtn = document.getElementById('logout-btn');
-    const dateDisplay = document.getElementById('date-display');
     const todoInput = document.getElementById('todo-input');
     const addBtn = document.getElementById('add-btn');
     const todoList = document.getElementById('todo-list');
     const filterBtns = document.querySelectorAll('.filter-btn');
     const emptyState = document.getElementById('empty-state');
+    const priorityToggle = document.getElementById('priority-toggle');
 
     // State
     let todos = [];
     let currentFilter = 'all';
     let token = localStorage.getItem('token');
     let user = JSON.parse(localStorage.getItem('user'));
+    let isPriorityInput = false;
 
     // API URL
     const API_URL = '/api';
 
     // Initialize
-    setDate();
     checkAuth();
 
     // Auth Navigation
@@ -66,6 +66,11 @@ document.addEventListener('DOMContentLoaded', () => {
     addBtn.addEventListener('click', addTodo);
     todoInput.addEventListener('keypress', (e) => {
         if (e.key === 'Enter') addTodo();
+    });
+
+    priorityToggle.addEventListener('click', () => {
+        isPriorityInput = !isPriorityInput;
+        priorityToggle.classList.toggle('active', isPriorityInput);
     });
 
     logoutBtn.addEventListener('click', logout);
@@ -220,19 +225,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    const priorityToggle = document.getElementById('priority-toggle');
-    let isPriorityInput = false;
-
-    // ... existing init ...
-
-    // Priority Toggle Listener
-    priorityToggle.addEventListener('click', () => {
-        isPriorityInput = !isPriorityInput;
-        priorityToggle.classList.toggle('active', isPriorityInput);
-    });
-
-    // ... existing listeners ...
-
     async function addTodo() {
         const text = todoInput.value.trim();
         if (text === '') return;
@@ -270,7 +262,52 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // ... existing functions ...
+    async function toggleTodo(id, completed) {
+        try {
+            const res = await fetch(`${API_URL}/todos/${id}`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify({ completed: !completed })
+            });
+
+            if (res.ok) {
+                todos = todos.map(todo => {
+                    if (todo.id === id) {
+                        return { ...todo, completed: !completed };
+                    }
+                    return todo;
+                });
+                renderTodos();
+            }
+        } catch (err) {
+            console.error('Error toggling todo:', err);
+        }
+    }
+
+    async function deleteTodo(id) {
+        const todoElement = document.querySelector(`[data-id="${id}"]`);
+        if (todoElement) {
+            todoElement.classList.add('removing');
+            todoElement.addEventListener('animationend', async () => {
+                try {
+                    const res = await fetch(`${API_URL}/todos/${id}`, {
+                        method: 'DELETE',
+                        headers: { 'Authorization': `Bearer ${token}` }
+                    });
+
+                    if (res.ok) {
+                        todos = todos.filter(todo => todo.id !== id);
+                        renderTodos();
+                    }
+                } catch (err) {
+                    console.error('Error deleting todo:', err);
+                }
+            });
+        }
+    }
 
     function renderTodos() {
         todoList.innerHTML = '';
@@ -326,125 +363,12 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    async function toggleTodo(id, completed) {
-        try {
-            const res = await fetch(`${API_URL}/todos/${id}`, {
-                method: 'PUT',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token}`
-                },
-                body: JSON.stringify({ completed: !completed })
-            });
-
-            if (res.ok) {
-                todos = todos.map(todo => {
-                    if (todo.id === id) {
-                        return { ...todo, completed: !completed };
-                    }
-                    return todo;
-                });
-                renderTodos();
-            }
-        } catch (err) {
-            console.error('Error toggling todo:', err);
-        }
+    function escapeHtml(unsafe) {
+        return unsafe
+            .replace(/&/g, "&amp;")
+            .replace(/</g, "&lt;")
+            .replace(/>/g, "&gt;")
+            .replace(/"/g, "&quot;")
+            .replace(/'/g, "&#039;");
     }
-
-    async function deleteTodo(id) {
-        const todoElement = document.querySelector(`[data-id="${id}"]`);
-        if (todoElement) {
-            todoElement.classList.add('removing');
-            todoElement.addEventListener('animationend', async () => {
-                try {
-                    const res = await fetch(`${API_URL}/todos/${id}`, {
-                        method: 'DELETE',
-                        headers: { 'Authorization': `Bearer ${token}` }
-                    });
-
-                    if (res.ok) {
-                        todos = todos.filter(todo => todo.id !== id);
-                        renderTodos();
-                    }
-                } catch (err) {
-                    console.error('Error deleting todo:', err);
-                }
-            });
-        }
-    }
-    const res = await fetch(`${API_URL}/todos/${id}`, {
-        method: 'DELETE',
-        headers: { 'Authorization': `Bearer ${token}` }
-    });
-
-    if (res.ok) {
-        todos = todos.filter(todo => todo.id !== id);
-        renderTodos();
-    }
-} catch (err) {
-    console.error('Error deleting todo:', err);
-}
-                        });
-                    }
-                }
-
-function setDate() {
-    const options = { weekday: 'long', month: 'long', day: 'numeric' };
-    dateDisplay.textContent = new Date().toLocaleDateString('en-US', options);
-}
-
-function renderTodos() {
-    todoList.innerHTML = '';
-
-    let filteredTodos = todos;
-    if (currentFilter === 'active') {
-        filteredTodos = todos.filter(todo => !todo.completed);
-    } else if (currentFilter === 'completed') {
-        filteredTodos = todos.filter(todo => todo.completed);
-    }
-
-    if (filteredTodos.length === 0) {
-        emptyState.classList.add('visible');
-    } else {
-        emptyState.classList.remove('visible');
-
-        filteredTodos.forEach(todo => {
-            const li = document.createElement('li');
-            li.className = `todo-item ${todo.completed ? 'completed' : ''}`;
-            li.dataset.id = todo.id;
-
-            const createdDate = new Date(todo.created_at).toLocaleString();
-
-            li.innerHTML = `
-                    <input type="checkbox" class="todo-checkbox" ${todo.completed ? 'checked' : ''}>
-                    <div class="todo-content">
-                        <span class="todo-text">${escapeHtml(todo.text)}</span>
-                        <span class="todo-meta">Created by ${escapeHtml(user.username)} at ${createdDate}</span>
-                    </div>
-                    <button class="delete-btn" aria-label="Delete task">
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <path d="M19 7L18.1327 19.1425C18.0579 20.1891 17.187 21 16.1378 21H7.86224C6.81296 21 5.94208 20.1891 5.86732 19.1425L5 7M10 11V17M14 11V17M15 7V4C15 3.44772 14.5523 3 14 3H10C9.44772 3 9 3.44772 9 4V7M4 7H20" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                        </svg>
-                    </button>
-                `;
-
-            const checkbox = li.querySelector('.todo-checkbox');
-            checkbox.addEventListener('change', () => toggleTodo(todo.id, todo.completed));
-
-            const deleteBtn = li.querySelector('.delete-btn');
-            deleteBtn.addEventListener('click', () => deleteTodo(todo.id));
-
-            todoList.appendChild(li);
-        });
-    }
-}
-
-function escapeHtml(unsafe) {
-    return unsafe
-        .replace(/&/g, "&amp;")
-        .replace(/</g, "&lt;")
-        .replace(/>/g, "&gt;")
-        .replace(/"/g, "&quot;")
-        .replace(/'/g, "&#039;");
-}
-            });
+});
