@@ -19,8 +19,14 @@ function initDb() {
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             username TEXT UNIQUE NOT NULL,
             password_hash TEXT NOT NULL,
+            recovery_phrase_hash TEXT,
             created_at DATETIME DEFAULT CURRENT_TIMESTAMP
         )`);
+
+        // Attempt to add column if it doesn't exist (Migration for existing DB)
+        db.run(`ALTER TABLE users ADD COLUMN recovery_phrase_hash TEXT`, (err) => {
+            // Ignore error if column already exists
+        });
 
         // Todos table
         db.run(`CREATE TABLE IF NOT EXISTS todos (

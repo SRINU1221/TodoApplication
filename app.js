@@ -4,16 +4,18 @@ document.addEventListener('DOMContentLoaded', () => {
     const appContainer = document.getElementById('app-container');
     const loginForm = document.getElementById('login-form');
     const registerForm = document.getElementById('register-form');
-    const showRegisterBtn = document.getElementById('show-register');
-    const showLoginBtn = document.getElementById('show-login');
+    const resetForm = document.getElementById('reset-form');
+    const showRegisterLink = document.getElementById('show-register');
+    const showLoginLink = document.getElementById('show-login');
+    const showForgotPasswordLink = document.getElementById('show-forgot-password');
+    const backToLoginLink = document.getElementById('back-to-login');
     const authError = document.getElementById('auth-error');
     const logoutBtn = document.getElementById('logout-btn');
-
+    const dateDisplay = document.getElementById('date-display');
     const todoInput = document.getElementById('todo-input');
     const addBtn = document.getElementById('add-btn');
     const todoList = document.getElementById('todo-list');
     const filterBtns = document.querySelectorAll('.filter-btn');
-    const dateDisplay = document.getElementById('date-display');
     const emptyState = document.getElementById('empty-state');
 
     // State
@@ -29,42 +31,44 @@ document.addEventListener('DOMContentLoaded', () => {
     setDate();
     checkAuth();
 
-    // Auth Event Listeners
-    showRegisterBtn.addEventListener('click', (e) => {
+    // Auth Navigation
+    showRegisterLink.addEventListener('click', (e) => {
         e.preventDefault();
         loginForm.classList.add('hidden');
         registerForm.classList.remove('hidden');
+        resetForm.classList.add('hidden');
         authError.textContent = '';
     });
 
-    showLoginBtn.addEventListener('click', (e) => {
+    showLoginLink.addEventListener('click', (e) => {
         e.preventDefault();
         registerForm.classList.add('hidden');
         loginForm.classList.remove('hidden');
+        resetForm.classList.add('hidden');
         authError.textContent = '';
     });
 
-    loginForm.addEventListener('submit', async (e) => {
+    showForgotPasswordLink.addEventListener('click', (e) => {
         e.preventDefault();
-        const username = document.getElementById('login-username').value;
-        const password = document.getElementById('login-password').value;
-        await login(username, password);
+        loginForm.classList.add('hidden');
+        resetForm.classList.remove('hidden');
+        authError.textContent = '';
     });
 
-    registerForm.addEventListener('submit', async (e) => {
+    backToLoginLink.addEventListener('click', (e) => {
         e.preventDefault();
-        const username = document.getElementById('register-username').value;
-        const password = document.getElementById('register-password').value;
-        await register(username, password);
+        resetForm.classList.add('hidden');
+        loginForm.classList.remove('hidden');
+        authError.textContent = '';
     });
-
-    logoutBtn.addEventListener('click', logout);
 
     // App Event Listeners
     addBtn.addEventListener('click', addTodo);
     todoInput.addEventListener('keypress', (e) => {
         if (e.key === 'Enter') addTodo();
     });
+
+    logoutBtn.addEventListener('click', logout);
 
     filterBtns.forEach(btn => {
         btn.addEventListener('click', () => {
@@ -73,6 +77,68 @@ document.addEventListener('DOMContentLoaded', () => {
             currentFilter = btn.dataset.filter;
             renderTodos();
         });
+    });
+
+    // Register
+    registerForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const username = document.getElementById('register-username').value;
+        const password = document.getElementById('register-password').value;
+        const recoveryPhrase = document.getElementById('register-recovery').value;
+
+        try {
+            const res = await fetch(`${API_URL}/auth/register`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ username, password, recoveryPhrase })
+            });
+            const data = await res.json();
+
+            if (res.ok) {
+                alert('Registration successful! Please login.');
+                registerForm.classList.add('hidden');
+                loginForm.classList.remove('hidden');
+            } else {
+                authError.textContent = data.error;
+            }
+        } catch (err) {
+            authError.textContent = 'Failed to register';
+        }
+    });
+
+    // Login
+    loginForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const username = document.getElementById('login-username').value;
+        const password = document.getElementById('login-password').value;
+        await login(username, password);
+    });
+
+    // Reset Password
+    resetForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const username = document.getElementById('reset-username').value;
+        const recoveryPhrase = document.getElementById('reset-recovery').value;
+        const newPassword = document.getElementById('reset-password').value;
+
+        try {
+            const res = await fetch(`${API_URL}/auth/reset-password`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ username, recoveryPhrase, newPassword })
+            });
+            const data = await res.json();
+
+            if (res.ok) {
+                alert('Password reset successful! Please login with your new password.');
+                resetForm.classList.add('hidden');
+                loginForm.classList.remove('hidden');
+            } else {
+                authError.textContent = data.error;
+            }
+        } catch (err) {
+            authError.textContent = 'Failed to reset password';
+        }
     });
 
     // Auth Functions
@@ -112,26 +178,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 localStorage.setItem('token', token);
                 localStorage.setItem('user', JSON.stringify(user));
                 checkAuth();
-            } else {
-                authError.textContent = data.error;
-            }
-        } catch (err) {
-            authError.textContent = 'Failed to connect to server';
-        }
-    }
-
-    async function register(username, password) {
-        try {
-            const res = await fetch(`${API_URL}/auth/register`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ username, password })
-            });
-            const data = await res.json();
-
-            if (res.ok) {
-                // Auto login after register
-                await login(username, password);
             } else {
                 authError.textContent = data.error;
             }

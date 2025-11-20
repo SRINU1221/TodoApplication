@@ -32,22 +32,25 @@ const authenticateToken = (req, res, next) => {
 
 // Register
 app.post('/api/auth/register', (req, res) => {
-    const { username, password } = req.body;
-    if (!username || !password) {
-        return res.status(400).json({ error: 'Username and password required' });
+    const { username, password, recoveryPhrase } = req.body;
+    if (!username || !password || !recoveryPhrase) {
+        return res.status(400).json({ error: 'Username, password, and recovery phrase required' });
     }
 
     const hash = bcrypt.hashSync(password, 10);
+    const recoveryHash = bcrypt.hashSync(recoveryPhrase, 10);
 
-    db.run('INSERT INTO users (username, password_hash) VALUES (?, ?)', [username, hash], function (err) {
-        if (err) {
-            if (err.message.includes('UNIQUE constraint failed')) {
-                return res.status(400).json({ error: 'Username already exists' });
+    db.run('INSERT INTO users (username, password_hash, recovery_phrase_hash) VALUES (?, ?, ?)',
+        [username, hash, recoveryHash],
+        function (err) {
+            if (err) {
+                if (err.message.includes('UNIQUE constraint failed')) {
+                    return res.status(400).json({ error: 'Username already exists' });
+                }
+                return res.status(500).json({ error: err.message });
             }
-            return res.status(500).json({ error: err.message });
-        }
-        res.json({ id: this.lastID, username });
-    });
+            res.json({ id: this.lastID, username });
+        });
 });
 
 // Login
@@ -63,6 +66,33 @@ app.post('/api/auth/login', (req, res) => {
             res.json({ token, user: { id: user.id, username: user.username } });
         } else {
             res.status(401).json({ error: 'Invalid password' });
+        }
+    });
+});
+
+// Reset Password
+app.post('/api/auth/reset-password', (req, res) => {
+    const { username, recoveryPhrase, newPassword } = req.body;
+    if (!username || !recoveryPhrase || !newPassword) {
+        return res.status(400).json({ error: 'All fields are required' });
+    }
+
+    db.get('SELECT * FROM users WHERE username = ?', [username], (err, user) => {
+        if (err) return res.status(500).json({ error: err.message });
+        if (!user) return res.status(400).json({ error: 'User not found' });
+
+        if (!user.recovery_phrase_hash) {
+            return res.status(400).json({ error: 'No recovery phrase set for this user' });
+        }
+
+        if (bcrypt.compareSync(recoveryPhrase, user.recovery_phrase_hash)) {
+            const newHash = bcrypt.hashSync(newPassword, 10);
+            db.run('UPDATE users SET password_hash = ? WHERE id = ?', [newHash, user.id], (err) => {
+                if (err) return res.status(500).json({ error: err.message });
+                res.json({ message: 'Password reset successfully' });
+            });
+        } else {
+            res.status(401).json({ error: 'Invalid recovery phrase' });
         }
     });
 });
