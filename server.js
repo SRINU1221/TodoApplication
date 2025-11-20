@@ -99,7 +99,7 @@ app.post('/api/auth/reset-password', (req, res) => {
 
 // Get Todos
 app.get('/api/todos', authenticateToken, (req, res) => {
-    db.all('SELECT * FROM todos WHERE user_id = ? ORDER BY created_at DESC', [req.user.id], (err, rows) => {
+    db.all('SELECT * FROM todos WHERE user_id = ? ORDER BY is_priority DESC, created_at DESC', [req.user.id], (err, rows) => {
         if (err) return res.status(500).json({ error: err.message });
         res.json(rows);
     });
@@ -107,27 +107,49 @@ app.get('/api/todos', authenticateToken, (req, res) => {
 
 // Create Todo
 app.post('/api/todos', authenticateToken, (req, res) => {
-    const { text } = req.body;
+    const { text, isPriority } = req.body;
     if (!text) return res.status(400).json({ error: 'Text is required' });
 
-    db.run('INSERT INTO todos (user_id, text) VALUES (?, ?)', [req.user.id, text], function (err) {
-        if (err) return res.status(500).json({ error: err.message });
+    db.run('INSERT INTO todos (user_id, text, is_priority) VALUES (?, ?, ?)',
+        [req.user.id, text, isPriority ? 1 : 0],
+        function (err) {
+            if (err) return res.status(500).json({ error: err.message });
 
-        // Return the created todo
-        db.get('SELECT * FROM todos WHERE id = ?', [this.lastID], (err, row) => {
-            res.json(row);
+            db.get('SELECT * FROM todos WHERE id = ?', [this.lastID], (err, row) => {
+                res.json(row);
+            });
         });
-    });
 });
 
-// Update Todo (Toggle Complete)
+// Update Todo
 app.put('/api/todos/:id', authenticateToken, (req, res) => {
-    const { completed } = req.body;
-    const { id } = req.params;
+    const { completed, isPriority } = req.body;
+    const todoId = req.params.id;
 
-    db.run('UPDATE todos SET completed = ? WHERE id = ? AND user_id = ?', [completed ? 1 : 0, id, req.user.id], function (err) {
+    // Build dynamic query based on provided fields
+    let updates = [];
+    let params = [];
+
+    if (completed !== undefined) {
+        updates.push('completed = ?');
+        params.push(completed ? 1 : 0);
+    }
+    if (isPriority !== undefined) {
+        updates.push('is_priority = ?');
+        params.push(isPriority ? 1 : 0);
+    }
+
+    if (updates.length === 0) return res.status(400).json({ error: 'No updates provided' });
+
+    params.push(todoId);
+    params.push(req.user.id);
+
+    const sql = `UPDATE todos SET ${updates.join(', ')} WHERE id = ? AND user_id = ?`;
+
+    db.run(sql, params, function (err) {
         if (err) return res.status(500).json({ error: err.message });
-        res.json({ changes: this.changes });
+        if (this.changes === 0) return res.status(404).json({ error: 'Todo not found' });
+        res.json({ message: 'Updated successfully' });
     });
 });
 

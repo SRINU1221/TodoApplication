@@ -33,10 +33,16 @@ function initDb() {
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             user_id INTEGER NOT NULL,
             text TEXT NOT NULL,
+            is_priority BOOLEAN DEFAULT 0,
             completed BOOLEAN DEFAULT 0,
             created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
             FOREIGN KEY (user_id) REFERENCES users (id)
         )`);
+
+        // Migration: Add is_priority if not exists
+        db.run(`ALTER TABLE todos ADD COLUMN is_priority BOOLEAN DEFAULT 0`, (err) => {
+            // Ignore error if column already exists
+        });
     });
 }
 
