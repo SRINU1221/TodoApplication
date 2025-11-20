@@ -6,58 +6,75 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Premium Todo App</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
-    </header>
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
 
-    <form id="login-form" class="auth-form">
-        <div class="input-group">
-            <input type="text" id="login-username" placeholder=" " autocomplete="username" required>
-            <label for="login-username">Username</label>
-        </div>
-        <div class="input-group">
-            <input type="password" id="login-password" placeholder=" " autocomplete="current-password" required>
-            <label for="login-password">Password</label>
-        </div>
-        <button type="submit" class="primary-btn">Login</button>
-        <p class="auth-switch">
-            <a href="#" id="show-forgot-password" style="font-size: 0.8rem;">Forgot Password?</a>
-        </p>
-        <p class="auth-switch">Don't have an account? <a href="#" id="show-register">Register</a></p>
-    </form>
+<body>
+    <div class="background-blobs">
+        <div class="blob blob-1"></div>
+        <div class="blob blob-2"></div>
+        <div class="blob blob-3"></div>
+    </div>
 
-    <form id="register-form" class="auth-form hidden">
-        <div class="input-group">
-            <input type="text" id="register-username" placeholder=" " autocomplete="username" required>
-            <label for="register-username">Choose Username</label>
-        </div>
-        <div class="input-group">
-            <input type="password" id="register-password" placeholder=" " autocomplete="new-password" required>
-            <label for="register-password">Choose Password</label>
-        </div>
-        <div class="input-group">
-            <input type="text" id="register-recovery" placeholder=" " autocomplete="off" required>
-            <label for="register-recovery">Recovery Phrase (Keep this safe!)</label>
-        </div>
-        <button type="submit" class="primary-btn">Register</button>
-        <p class="auth-switch">Already have an account? <a href="#" id="show-login">Login</a></p>
-    </form>
+    <!-- Auth Container -->
+    <div class="container auth-container" id="auth-container">
+        <header>
+            <h1>Welcome</h1>
+            <p>Please login to continue</p>
+        </header>
 
-    <form id="reset-form" class="auth-form hidden">
-        <div class="input-group">
-            <input type="text" id="reset-username" placeholder=" " autocomplete="username" required>
-            <label for="reset-username">Username</label>
-        </div>
-        <div class="input-group">
-            <input type="text" id="reset-recovery" placeholder=" " autocomplete="off" required>
-            <label for="reset-recovery">Recovery Phrase</label>
-        </div>
-        <div class="input-group">
-            <input type="password" id="reset-password" placeholder=" " autocomplete="new-password" required>
-            <label for="reset-password">New Password</label>
-        </div>
-        <button type="submit" class="primary-btn">Reset Password</button>
-        <p class="auth-switch"><a href="#" id="back-to-login">Back to Login</a></p>
-    </form>
-    <p id="auth-error" class="error-msg"></p>
+        <form id="login-form" class="auth-form">
+            <div class="input-group">
+                <input type="text" id="login-username" placeholder=" " autocomplete="username" required>
+                <label for="login-username">Username</label>
+            </div>
+            <div class="input-group">
+                <input type="password" id="login-password" placeholder=" " autocomplete="current-password" required>
+                <label for="login-password">Password</label>
+            </div>
+            <button type="submit" class="primary-btn">Login</button>
+            <p class="auth-switch">
+                <a href="#" id="show-forgot-password" style="font-size: 0.8rem;">Forgot Password?</a>
+            </p>
+            <p class="auth-switch">Don't have an account? <a href="#" id="show-register">Register</a></p>
+        </form>
+
+        <form id="register-form" class="auth-form hidden">
+            <div class="input-group">
+                <input type="text" id="register-username" placeholder=" " autocomplete="username" required>
+                <label for="register-username">Choose Username</label>
+            </div>
+            <div class="input-group">
+                <input type="password" id="register-password" placeholder=" " autocomplete="new-password" required>
+                <label for="register-password">Choose Password</label>
+            </div>
+            <div class="input-group">
+                <input type="text" id="register-recovery" placeholder=" " autocomplete="off" required>
+                <label for="register-recovery">Recovery Phrase (Keep this safe!)</label>
+            </div>
+            <button type="submit" class="primary-btn">Register</button>
+            <p class="auth-switch">Already have an account? <a href="#" id="show-login">Login</a></p>
+        </form>
+
+        <form id="reset-form" class="auth-form hidden">
+            <div class="input-group">
+                <input type="text" id="reset-username" placeholder=" " autocomplete="username" required>
+                <label for="reset-username">Username</label>
+            </div>
+            <div class="input-group">
+                <input type="text" id="reset-recovery" placeholder=" " autocomplete="off" required>
+                <label for="reset-recovery">Recovery Phrase</label>
+            </div>
+            <div class="input-group">
+                <input type="password" id="reset-password" placeholder=" " autocomplete="new-password" required>
+                <label for="reset-password">New Password</label>
+            </div>
+            <button type="submit" class="primary-btn">Reset Password</button>
+            <p class="auth-switch"><a href="#" id="back-to-login">Back to Login</a></p>
+        </form>
+        <p id="auth-error" class="error-msg"></p>
     </div>
 
     <!-- App Container (Hidden by default) -->
@@ -79,14 +96,34 @@
         <div class="input-group">
             <input type="text" id="todo-input" placeholder=" " autocomplete="off">
             <label for="todo-input">Add a new task...</label>
-            <button id="priority-toggle" class="priority-btn" aria-label="Toggle Priority" </ul>
-
-                <div class="empty-state" id="empty-state">
-                    <p>No tasks found. Time to relax!</p>
-                </div>
+            <button id="priority-toggle" class="priority-btn" aria-label="Toggle Priority"
+                title="Mark as High Priority">
+                ★
+            </button>
+            <button id="add-btn" aria-label="Add Task">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M12 5V19M5 12H19" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round" />
+                </svg>
+            </button>
         </div>
 
-        <script src="app.js"></script>
-        </body>
+        <div class="filters">
+            <button class="filter-btn active" data-filter="all">All</button>
+            <button class="filter-btn" data-filter="active">Active</button>
+            <button class="filter-btn" data-filter="completed">Completed</button>
+        </div>
+
+        <ul id="todo-list" class="todo-list">
+            <!-- Todos will be added here -->
+        </ul>
+
+        <div class="empty-state" id="empty-state">
+            <p>No tasks found. Time to relax!</p>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
 
 </html>
