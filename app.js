@@ -23,7 +23,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let user = JSON.parse(localStorage.getItem('user'));
 
     // API URL
-    const API_URL = 'http://localhost:3000/api';
+    const API_URL = '/api';
 
     // Initialize
     setDate();
