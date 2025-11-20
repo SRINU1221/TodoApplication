@@ -345,8 +345,15 @@ document.addEventListener('DOMContentLoaded', () => {
                 li.dataset.id = todo.id;
 
                 const createdDate = new Date(todo.created_at);
-                const isCarriedOver = createdDate.setHours(0, 0, 0, 0) < today && !todo.completed;
-                const dateString = createdDate.toLocaleString();
+                // Format date to show full date and time
+                const dateString = createdDate.toLocaleString(undefined, {
+                    year: 'numeric',
+                    month: 'short',
+                    day: 'numeric',
+                    hour: '2-digit',
+                    minute: '2-digit',
+                    second: '2-digit'
+                });
 
                 li.innerHTML = `
                     <input type="checkbox" class="todo-checkbox" ${todo.completed ? 'checked' : ''}>
@@ -354,7 +361,6 @@ document.addEventListener('DOMContentLoaded', () => {
                         <div class="todo-header">
                             <span class="todo-text">${escapeHtml(todo.text)}</span>
                             ${todo.is_priority ? '<span class="priority-star" title="High Priority">★</span>' : ''}
-                            ${isCarriedOver ? '<span class="carried-over-tag">Carried Over</span>' : ''}
                         </div>
                         <span class="todo-meta">Created by ${escapeHtml(user.username)} at ${dateString}</span>
                     </div>
