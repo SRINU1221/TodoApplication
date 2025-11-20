@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Premium Todo App</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+    <div class="background-blobs">
+        <div class="blob blob-1"></div>
+        <div class="blob blob-2"></div>
+        <div class="blob blob-3"></div>
+    </div>
+
+    <!-- Auth Container -->
+    <div class="container auth-container" id="auth-container">
+        <header>
+            <h1>Welcome</h1>
+            <p>Please login to continue</p>
+        </header>
+
+        <form id="login-form" class="auth-form">
+            <div class="input-group">
+                <input type="text" id="login-username" placeholder=" " autocomplete="username" required>
+                <label for="login-username">Username</label>
+            </div>
+            <div class="input-group">
+                <input type="password" id="login-password" placeholder=" " autocomplete="current-password" required>
+                <label for="login-password">Password</label>
+            </div>
+            <button type="submit" class="primary-btn">Login</button>
+            <p class="auth-switch">Don't have an account? <a href="#" id="show-register">Register</a></p>
+        </form>
+
+        <form id="register-form" class="auth-form hidden">
+            <div class="input-group">
+                <input type="text" id="register-username" placeholder=" " autocomplete="username" required>
+                <label for="register-username">Choose Username</label>
+            </div>
+            <div class="input-group">
+                <input type="password" id="register-password" placeholder=" " autocomplete="new-password" required>
+                <label for="register-password">Choose Password</label>
+            </div>
+            <button type="submit" class="primary-btn">Register</button>
+            <p class="auth-switch">Already have an account? <a href="#" id="show-login">Login</a></p>
+        </form>
+        <p id="auth-error" class="error-msg"></p>
+    </div>
+
+    <!-- App Container (Hidden by default) -->
+    <div class="container app-container hidden" id="app-container">
+        <header class="app-header">
+            <div>
+                <h1>Tasks</h1>
+                <p id="date-display">Today's Date</p>
+            </div>
+            <button id="logout-btn" class="icon-btn" aria-label="Logout">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path
+                        d="M9 21H5C4.46957 21 3.96086 20.7893 3.58579 20.4142C3.21071 20.0391 3 19.5304 3 19V5C3 4.46957 3.21071 3.96086 3.58579 3.58579C3.96086 3.21071 4.46957 3 5 3H9M16 17L21 12M21 12L16 7M21 12H9"
+                        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                </svg>
+            </button>
+        </header>
+
+        <div class="input-group">
+            <input type="text" id="todo-input" placeholder=" " autocomplete="off">
+            <label for="todo-input">Add a new task...</label>
+            <button id="add-btn" aria-label="Add Task">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M12 5V19M5 12H19" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round" />
+                </svg>
+            </button>
+        </div>
+
+        <div class="filters">
+            <button class="filter-btn active" data-filter="all">All</button>
+            <button class="filter-btn" data-filter="active">Active</button>
+            <button class="filter-btn" data-filter="completed">Completed</button>
+        </div>
+
+        <ul id="todo-list" class="todo-list">
+            <!-- Todos will be added here -->
+        </ul>
+
+        <div class="empty-state" id="empty-state">
+            <p>No tasks found. Time to relax!</p>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+
+</html>
